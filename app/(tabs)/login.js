@@ -1,31 +1,54 @@
-import { Button, Text, View, StyleSheet, ImageBackground, TouchableOpacity, Platform } from 'react-native';
+import { Button, Text, View, StyleSheet, ImageBackground, TouchableOpacity, Platform, TextInput, Alert } from 'react-native';
 import React, { useState } from 'react';
 import { useNavigation } from 'expo-router';
-import { NavigationProp } from '@react-navigation/native';
-import { TextInput } from 'react-native';
 
 export default function Login() {
-  const navigation = useNavigation<NavigationProp<any>>();
+  const navigation = useNavigation();
   const [useremail, setUseremail] = useState('');
   const [userpass, setUserpass] = useState('');
 
-  const handleLogin = () => {
-    console.log('Email: ', useremail);
-    console.log('Password: ', userpass);
+  const handleLogin = async () => {
+    if (!useremail || !userpass) {
+      alert("❌ Please enter both email and password.");
+      return;
+    }
+  
+    try {
+      const response = await fetch('http://192.168.254.130:5000/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: useremail, password: userpass }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        console.log('✅ Login successful:', data);
+        setTimeout(() => navigation.navigate('homescreen'), 500);
+      } else {
+        console.log('❌ Login failed:', data.message);
+        alert(data.message);
+      }
+    } catch (error) {
+      console.error('❌ Network Error:', error);
+      alert('Network error! Please check your connection.');
+    }
   };
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
 
   return (
     <ImageBackground source={require('../Images/loginbg.png')} style={styles.background} blurRadius={3}>
       <TouchableOpacity onPress={() => navigation.navigate('index')}>
-        <Text style={{ 
-          fontSize: 20, 
-          right: 130, 
-          bottom: 185,
-          marginTop: Platform.OS === 'android' ? 50 : 10,
-          color:'white' 
-        }}>
-          {"Back"}
-        </Text>
+        <Text style={styles.backText}>{"Back"}</Text>
       </TouchableOpacity>
       <View style={styles.container}>
         <View style={styles.formContainer}>
@@ -34,7 +57,10 @@ export default function Login() {
             <TextInput
               style={styles.input}
               placeholder="User Email"
-              onChangeText={(text) => setUseremail(text)}
+              onChangeText={setUseremail}
+              value={useremail}
+              autoCapitalize="none"
+              keyboardType="email-address"
             />
           </View>
 
@@ -44,12 +70,12 @@ export default function Login() {
               style={styles.input}
               placeholder="Password"
               value={userpass}
-              onChangeText={(text) => setUserpass(text)}
+              onChangeText={setUserpass}
               secureTextEntry
             />
           </View>
 
-          <Button title="Sign in" onPress={() => { handleLogin(); navigation.navigate('homescreen'); }} />
+          <Button title="Sign in" onPress={handleLogin} />
           <Button title="Create Account" onPress={() => navigation.navigate('login')} />
         </View>
       </View>
@@ -63,6 +89,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  backText: {
+    fontSize: 20,
+    right: 130,
+    bottom: 185,
+    marginTop: Platform.OS === 'android' ? 50 : 10,
+    color: 'white',
+  },
   container: {
     width: '80%',
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
@@ -74,15 +107,15 @@ const styles = StyleSheet.create({
   },
   inputRow: {
     marginBottom: 15,
-    flexDirection: 'row', 
+    flexDirection: 'row',
     alignItems: 'center',
   },
   label: {
     fontSize: 18,
-    marginRight: 5, 
+    marginRight: 5,
   },
   input: {
-    flex: 1, 
+    flex: 1,
     height: 40,
     borderColor: 'gray',
     borderWidth: 1,
