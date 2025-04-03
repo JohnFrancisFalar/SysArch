@@ -1,7 +1,6 @@
 import { Platform, Button, Text, View, Image, StyleSheet, ImageBackground, TouchableOpacity, TextInput } from 'react-native';
 import React, { useState } from 'react';
 import { useNavigation } from 'expo-router';
-import { NavigationProp } from '@react-navigation/native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -29,40 +28,43 @@ export default function HomeScreen() {
           <Image source={require('../Images/sweetSpotLogo.png')} style={styles.logo} />
           <Text style={styles.tagline}>FINDING THE RIGHT SPOT AT THE RIGHT TIME</Text>
         </View>
-<View style={styles.mallcontainers}>
-        <View style={styles.searchContainer}>
-          <Ionicons name="search" size={20} color="#999" style={styles.searchIcon} />
-          <TextInput 
-            style={styles.searchInput} 
-            placeholder="Search..." 
-            value={searchQuery} 
-            onChangeText={setSearchQuery}
-          />
+        <View style={styles.mallcontainers}>
+          <View style={styles.searchContainer}>
+            <Ionicons name="search" size={20} color="#999" style={styles.searchIcon} />
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Search..."
+              value={searchQuery}
+              onChangeText={setSearchQuery}
+            />
+          </View>
+
+          <Text style={styles.sectionTitle}>Parking Nearby</Text>
+
+          <ScrollView>
+            {filteredMalls.map(mall => (
+              <TouchableOpacity key={mall.id} style={styles.card}>
+                <Image source={mall.image} style={styles.mallImage} />
+                <View style={styles.mallDetails}>
+                  <View>
+                    <Text style={styles.mallName}><Ionicons name="location" size={16} color="#007AFF" /> {mall.name}</Text>
+                    <Text style={styles.mallInfo}>{mall.slot} spaces available</Text>
+                    <Text style={styles.mallInfo}>{mall.distance}</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
         </View>
-
-        <Text style={styles.sectionTitle}>Parking Nearby</Text>
-
-        <ScrollView style={styles.listContainer}>
-          {filteredMalls.map(mall => (
-            <TouchableOpacity key={mall.id} style={styles.card}>
-              <Image source={mall.image} style={styles.mallImage} />
-              <View style={styles.mallDetails}>
-                <Text style={styles.mallName}><Ionicons name="location" size={16} color="#007AFF" /> {mall.name}</Text>
-                <Text style={styles.mallInfo}>{mall.slot} spaces available</Text>
-                <Text style={styles.mallInfo}>{mall.distance}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
       </View>
     </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  mallcontainers:{
-  backgroundColor: "grey",
+  mallcontainers: {
+    backgroundColor: "transparent", // changed from grey
+    flex:1, // added flex 1
   },
   background: {
     flex: 1,
@@ -119,11 +121,6 @@ const styles = StyleSheet.create({
     color: 'white',
     marginBottom: 10,
   },
-  listContainer: {
-    flexGrow: 1,
-    paddingBottom: 20, // Ensures spacing at the bottom when scrolling
-  },
-  
   card: {
     backgroundColor: 'white',
     borderRadius: 15,
